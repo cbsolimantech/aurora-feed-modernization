@@ -42,3 +42,28 @@ jobs:
       # Step 6: Build Docker image for CI
       - name: Build Docker image
         run: docker build -t aurora-api:ci -f api/Aurora.Api/Dockerfile .
+
+      # Step 7: Configure AWS credentials
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      # Step 8: Login to Amazon ECR
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+      
+      # Step 9: Build, tag, and push image
+      - name: Build, tag, and push image
+        run: |
+          # Build the Docker image
+          docker build -t aurora-api:ci -f api/Aurora.Api/Dockerfile .
+
+          # Tag the image for ECR
+          docker tag aurora-api:ci ${{ steps.login-ecr.outputs.registry }}/cbsoliman/aurora/aurora-api:ci
+
+          # Push the image to ECR
+          docker push ${{ steps.login-ecr.outputs.registry }}/cbsoliman/aurora/aurora-api:ci
