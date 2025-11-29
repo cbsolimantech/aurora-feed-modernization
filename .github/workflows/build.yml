@@ -41,4 +41,4 @@ jobs:
 
       # Step 6: Build Docker image for CI
       - name: Build Docker image
-        run: docker build -t aurora-api:ci -f api/Aurora.API/Dockerfile .
+        run: docker build -t aurora-api:ci -f api/Aurora.Api/Dockerfile .
