@@ -1,0 +1,44 @@
+# Name of the workflow (appears in GitHub Actions UI)
+name: Build Aurora API
+
+# Define when this workflow should run
+on:
+  # Trigger on pushes
+  push:
+    # Only run when pushing to the 'main' branch
+    branches: ["main"]
+
+# Jobs section (a workflow can have multiple jobs)
+jobs:
+  # Define a job named 'build'
+  build:
+    # Use GitHub's hosted Ubuntu runner (fresh VM each run)
+    runs-on: ubuntu-latest
+
+    # Steps are executed sequentially inside the job
+    steps:
+      # Step 1: Checkout the repository code into the runner
+      - uses: actions/checkout@v3
+
+      # Step 2: Install the .NET SDK
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          # Specify the version (user LTS for credibility)
+          dotnet-version: '9.0.x'
+
+      # Step 3: Restore NuGet dependencies
+      - name: Restore dependencies
+        run: dotnet restore
+
+      # Step 4: Build the project in Release mode
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
+
+      # Step 5: Run unit tests
+      - name: tests
+        run: dotnet test --no-build --verbosity normal
+
+      # Step 6: Build Docker image for CI
+      - name: Build Docker image
+        run: docker build -t aurora-api:ci .
