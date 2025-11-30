@@ -79,6 +79,7 @@ jobs:
             ],
             "cpu": "1024",
             "memory": "2048",
+            "executionRoleArn": "arn:aws:iam::693422065083:role/ecsTaskExecutionRole",
             "containerDefinitions": [
               {
                 "name": "aurora-api",
@@ -87,7 +88,6 @@ jobs:
                 "portMappings": [
                   {
                     "containerPort": 8080,
-                    "hostPort": 8080,
                     "protocol": "tcp"
                   }
                 ]
