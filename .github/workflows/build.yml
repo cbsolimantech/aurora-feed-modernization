@@ -76,7 +76,7 @@ jobs:
             ],
             "cpu": "1024",
             "memory": "2048",
-            "executionRoleArn": "arn:aws:iam::693422065083:role/ecsTaskExecutionRole",
+            "executionRoleArn": "arn:aws:iam::693422065083:role/service-role/ecsTaskExecutionRole",
             "containerDefinitions": [
               {
                 "name": "aurora-api-v2",
