@@ -18,6 +18,7 @@ if (app.Environment.IsDevelopment())
 //Health endpoints
 app.MapHealthChecks("/health/live");
 app.MapHealthChecks("/health/ready");
+app.MapHealthChecks("/health/check");
 
 var summaries = new[]
 {

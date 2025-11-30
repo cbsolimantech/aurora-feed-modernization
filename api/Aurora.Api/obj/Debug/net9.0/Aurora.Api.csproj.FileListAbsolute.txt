@@ -30,3 +30,4 @@ C:\Users\Chris\Projects\repos\tata\aurora\api\Aurora.Api\obj\Debug\net9.0\refint
 C:\Users\Chris\Projects\repos\tata\aurora\api\Aurora.Api\obj\Debug\net9.0\Aurora.Api.pdb
 C:\Users\Chris\Projects\repos\tata\aurora\api\Aurora.Api\obj\Debug\net9.0\Aurora.Api.genruntimeconfig.cache
 C:\Users\Chris\Projects\repos\tata\aurora\api\Aurora.Api\obj\Debug\net9.0\ref\Aurora.Api.dll
+C:\Users\Chris\Projects\repos\tata\aurora\api\Aurora.Api\obj\Debug\net9.0\Aurora.Api.sourcelink.json
