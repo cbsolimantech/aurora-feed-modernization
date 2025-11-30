@@ -25,7 +25,7 @@ jobs:
         uses: actions/setup-dotnet@v3
         with:
           # Specify the version (user LTS for credibility)
-          dotnet-version: '9.0.x'
+          dotnet-version: "9.0.x"
 
       # Step 3: Restore NuGet dependencies
       - name: Restore dependencies
@@ -55,7 +55,7 @@ jobs:
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
-      
+
       # Step 9: Build, tag, and push image
       - name: Build, tag, and push image
         run: |
@@ -68,7 +68,35 @@ jobs:
           # Push the image to ECR
           docker push ${{ steps.login-ecr.outputs.registry }}/cbsoliman/aurora/aurora-api:ci
 
-      # Step 10: Deploy to ECS
-      - name: Deploy to ECS
+      # Step 10: Register new task definition and update service
+      - name: Register new task definition and update service
         run: |
-          aws ecs update-service --cluster aurora-demo-cluster --service aurora-service --force-new-deployment
+          echo '{
+            "family": "aurora-api",}'
+            "networkMode": "awsvpc",
+            "requiresCompatibilities": [
+              "FARGATE"
+            ],
+            "cpu": "1024",
+            "memory": "2048",
+            "containerDefinitions": [
+              {
+                "name": "aurora-api",
+                "image": "'${{ steps.login-ecr.outputs.registry }}/cbsoliman/aurora/aurora-api:ci'",
+                "essential": true,
+                "portMappings": [
+                  {
+                    "containerPort": 8080,
+                    "hostPort": 8080,
+                    "protocol": "tcp"
+                  }
+                ]
+              }
+            ]
+          }' > task-def.json
+
+          aws ecs register-task-definition --cli-input-json file://task-def.json
+
+          REVISION=$(aws ecs describe-task-definition --task-definition aurora-api --query 'taskDefinition.revision' --output text)
+
+          aws ecs update-service --cluster aurora-demo-cluster --service aurora-service --task-definition aurora-api:$REVISION
