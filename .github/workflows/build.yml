@@ -72,7 +72,7 @@ jobs:
       - name: Register new task definition and update service
         run: |
           echo '{
-            "family": "aurora-api"
+            "family": "aurora-api",
             "networkMode": "awsvpc",
             "requiresCompatibilities": [
               "FARGATE"
