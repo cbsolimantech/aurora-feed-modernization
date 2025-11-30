@@ -56,12 +56,9 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
-      # Step 9: Build, tag, and push image
-      - name: Build, tag, and push image
+      # Step 9: Tag, and push image
+      - name: Tag, and push image
         run: |
-          # Build the Docker image
-          docker build -t aurora-api:ci -f api/Aurora.Api/Dockerfile .
-
           # Tag the image for ECR
           docker tag aurora-api:ci ${{ steps.login-ecr.outputs.registry }}/cbsoliman/aurora/aurora-api:ci
 
@@ -72,7 +69,7 @@ jobs:
       - name: Register new task definition and update service
         run: |
           echo '{
-            "family": "aurora-api",
+            "family": "aurora-api-v2",
             "networkMode": "awsvpc",
             "requiresCompatibilities": [
               "FARGATE"
@@ -82,7 +79,7 @@ jobs:
             "executionRoleArn": "arn:aws:iam::693422065083:role/ecsTaskExecutionRole",
             "containerDefinitions": [
               {
-                "name": "aurora-api",
+                "name": "aurora-api-v2",
                 "image": "'${{ steps.login-ecr.outputs.registry }}/cbsoliman/aurora/aurora-api:ci'",
                 "essential": true,
                 "portMappings": [
@@ -97,6 +94,6 @@ jobs:
 
           aws ecs register-task-definition --cli-input-json file://task-def.json
 
-          REVISION=$(aws ecs describe-task-definition --task-definition aurora-api --query 'taskDefinition.revision' --output text)
+          REVISION=$(aws ecs describe-task-definition --task-definition aurora-api-v2 --query 'taskDefinition.revision' --output text)
 
-          aws ecs update-service --cluster aurora-demo-cluster --service aurora-service --task-definition aurora-api:$REVISION
+          aws ecs update-service --cluster aurora-cluster-v2 --service aurora-api-service-v2 --task-definition aurora-api-v2:$REVISION
