@@ -18,30 +18,51 @@ if (app.Environment.IsDevelopment())
 //Health endpoints
 app.MapHealthChecks("/health/live");
 app.MapHealthChecks("/health/ready");
-app.MapHealthChecks("/health/check");
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+var feedItems = new List<FeedItem>();
 
-app.MapGet("/weatherforecast", () =>
+app.MapGet("/api/feed", () =>
 {
-    var forecast = Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
+    return Results.Ok(feedItems);
+});
+
+app.MapGet("/api/feed/{id}", (int id) =>
+{
+    var item = feedItems.FirstOrDefault(f => f.Id == id);
+    return item is not null ? Results.Ok(item) : Results.NotFound();
+});
+
+app.MapPost("/api/feed", (FeedItem newItem) =>
+{
+    newItem.Id = feedItems.Count + 1;
+    feedItems.Add(newItem);
+    return Results.Created($"/api/feed/{newItem.Id}", newItem);
+});
+
+app.MapPut("/api/feed/{id}", (int id, FeedItem updated) =>
+{
+    var item = feedItems.FirstOrDefault(f => f.Id == id);
+    if (item is null) return Results.NotFound();
+
+    item.Title = updated.Title;
+    item.Content = updated.Content;
+    return Results.Ok(item);
+});
+
+app.MapDelete("/api/feed/{id}", (int id) =>
+{
+    var item = feedItems.FirstOrDefault(f => f.Id == id);
+    if (item is null) return Results.NotFound();
+
+    feedItems.Remove(item);
+    return Results.NoContent();
+});
 
 app.Run();
 
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
+record FeedItem
 {
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+    public int Id { get; set; }
+    public string Title { get; set; } = default!;
+    public string Content { get; set; } = default!;
 }
