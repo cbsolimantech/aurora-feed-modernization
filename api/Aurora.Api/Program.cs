@@ -21,6 +21,11 @@ app.MapHealthChecks("/health/ready");
 
 var feedItems = new List<FeedItem>();
 
+app.MapGet("/api/v2/feed", () =>
+{
+    return Results.Ok("All good in v2!");
+});
+
 app.MapGet("/api/feed", () =>
 {
     return Results.Ok(feedItems);
